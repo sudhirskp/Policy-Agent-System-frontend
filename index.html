@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Policy Agent System</title>
+  <style>
+    body { font-family: Arial; margin: 40px; }
+    textarea { width: 100%; height: 100px; }
+    button { padding: 10px; margin-top: 10px; }
+    pre { background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2>Policy Agent System</h2>
+
+  <textarea id="policyText" placeholder="Enter policy..."></textarea>
+  <br>
+  <button onclick="processPolicy()">Process Policy</button>
+
+  <h3>Response:</h3>
+  <pre id="output"></pre>
+
+  <script>
+    async function processPolicy() {
+      const outputEl = document.getElementById("output");
+      const policy = document.getElementById("policyText").value.trim();
+
+      if (!policy) {
+        outputEl.textContent = "Please enter a policy before processing.";
+        return;
+      }
+
+      outputEl.textContent = "Processing...";
+
+      try {
+        const response = await fetch("http://localhost:8080/api/process-policy", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            policyText: policy
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || `Request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        outputEl.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        outputEl.textContent = `Error: ${error.message}`;
+      }
+    }
+  </script>
+
+</body>
+</html>
